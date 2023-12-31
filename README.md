@@ -1,7 +1,8 @@
 # Backup emails
-Saves all your mailboxes from IMAP account into mbox files.
+Saves all your mailboxes from IMAP account into .mbox files.
 It saves each mailbox into separate .mbox file in the given folder.
 It uses SSL connection to connect to your IMAP server.
+It ignores some special mailboxes: Archive, Junk, Trash, Sent, and Drafts.
 
 # Prerequisites
 1. Create Python virtual env:
@@ -19,8 +20,8 @@ pip install -r requirements.txt
 4. Create .env file with the following content:
 ```
 EMAIL = "<your email>"
-LOCAL_MBOX_FOLDER = "<folder name to store all emails>"
-IMAP_SERVER = "<imap server>"
+IMAP_SERVER = "<your imap server hostname>"
+LOCAL_MBOX_FOLDER = "<local folder name to store all emails/mailboxes>"
 ```
 
 # Run your backup
@@ -28,4 +29,5 @@ IMAP_SERVER = "<imap server>"
 python backup-email.py
 ```
 Script will ask for the password for your email account.
+
 Enjoy!
