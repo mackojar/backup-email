@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import imaplib
@@ -9,7 +10,7 @@ class FolderInfo:
     folderMatch = re.search(folderItemRe, folderItem.decode("utf-8"))
     if not folderMatch:
       self.valid = False
-      print(f"Unknown folder info: {folderItem}")
+      logging.warn(f"Unknown folder info: {folderItem}")
     folderDict = folderMatch.groupdict()
     self.valid = True
     self.name = self._trimQuote(folderDict["name"])
@@ -26,21 +27,22 @@ def _syncFolder(mail: imaplib.IMAP4_SSL, folderInfo: FolderInfo):
   LOCAL_MBOX_FOLDER = os.getenv("LOCAL_MBOX_FOLDER")
   folderFileName = folderInfo.name.replace(folderInfo.delim, '_')
   mboxFileName = f"{LOCAL_MBOX_FOLDER}/{folderFileName}.mbox"
-  print(f"Syncing IMAP folder {folderInfo.name} into {mboxFileName}...")
+  logging.info(f"-> Syncing IMAP folder {folderInfo.name} into {mboxFileName}...")
   
   mail.select(folderInfo.name, readonly=True)
   syncMailbox(mail, mboxFileName)
   mail.close()
   
-  print(f"Emails from {folderInfo.name} synced with {mboxFileName}")
+  logging.info(f"<- Emails from {folderInfo.name} synced with {mboxFileName}")
 
 
 def processFolder(mail: imaplib.IMAP4_SSL, folder: bytes):
   EXCLUDED_MAILBOXES = ["\\Archive", "\\Junk", "\\Trash", "\\Sent", "\\Drafts"]
   folderInfo = FolderInfo(folder)
   if not folderInfo.valid:
+    logging.warn(f"Ignoring folder (not valid): {folderInfo.name}")
     return
   if any(item in EXCLUDED_MAILBOXES for item in folderInfo.flags):
-    print(f"Ignoring folder: {folderInfo.name}")
+    logging.info(f"Ignoring folder: {folderInfo.name}")
     return
   _syncFolder(mail, folderInfo)

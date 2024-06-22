@@ -1,3 +1,4 @@
+import logging
 import mailbox
 import imaplib
 from .imap import checkResponse
@@ -24,32 +25,33 @@ def _createMsgsInfo(mbox: mailbox.mbox) -> dict[str, MailSyncInfo]:
   return msgIdMap
 
 def _addMissingIMAPEmails(mail: imaplib.IMAP4_SSL, imapIds: list[bytes], mbox: mailbox.mbox, mboxMsgsInfo: dict[str, MailSyncInfo]):
+  logging.info("Retrieve missing IMAP emails...")
   for imapId in imapIds:
+    logging.info(f"Check IMAP email {imapId}...")
     messageId = _getMessageID(mail, imapId)
     if messageId in mboxMsgsInfo:
       mboxMsgsInfo[messageId].existsInIMAP = True
     else:
-      print(f"Reading IMAP email {imapId}:{messageId}...", end="\r")
+      logging.info(f"Retrieving IMAP email {imapId}:{messageId}...")
       status, msgData = mail.fetch(imapId, "(RFC822)")
       checkResponse(status, "retrieve message")
       rawEmail = msgData[0][1]
       msg = mailbox.mboxMessage(rawEmail)
       mboxId = mbox.add(msg)
       mboxMsgsInfo[messageId] = MailSyncInfo(mboxId, True)
-  print(" " * 70, end="\r")
 
 def _removeUnwantedMBoxEmails(mbox: mailbox.mbox, mboxMsgsInfo: dict[str, MailSyncInfo]):
+  logging.info("Remove unwanted MBOX emails...")
   for mailSyncInfo in mboxMsgsInfo.values():
     if mailSyncInfo.existsInIMAP == False:
-      print(f"Remove mbox email {mailSyncInfo.mboxId}...", end="\r")
+      logging.info(f"Remove MBOX email {mailSyncInfo.mboxId}")
       mbox.remove(mailSyncInfo.mboxId)
-  print(" " * 70, end="\r")
 
 def _getIMAPIds(mail: imaplib.IMAP4_SSL) -> list[bytes]:
   status, messages = mail.search(None, "ALL")
   checkResponse(status, "retrieve mail IDs")
   imapMessageIds = messages[0].split()
-  print(f"Found {len(imapMessageIds)} messages")
+  logging.info(f"Found {len(imapMessageIds)} IMAP messages")
   return imapMessageIds
 
 def syncMailbox(mail: imaplib.IMAP4_SSL, mboxFileName: str):
