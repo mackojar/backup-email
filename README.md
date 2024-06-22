@@ -4,6 +4,8 @@ It saves each mailbox into separate .mbox file in the given folder.
 It uses SSL connection to connect to your IMAP server.
 It ignores some special mailboxes: Archive, Junk, Trash, Sent, and Drafts.
 
+During backup process emails are synced from IMAP (mail server) to MBOX (local file).
+
 # Prerequisites
 1. Create Python virtual env:
 ```
