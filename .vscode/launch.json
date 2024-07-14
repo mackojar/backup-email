@@ -8,7 +8,7 @@
       "name": "Backup email",
       "type": "debugpy",
       "request": "launch",
-      "program": "backup-email.py",
+      "program": "backup_email.py",
       "console": "integratedTerminal"
     }
   ]

@@ -3,7 +3,7 @@ import imaplib
 import getpass
 import os
 from dotenv import load_dotenv
-import utils.imap_folder as folderProcessor
+import utils.folder as folderProcessor
 import utils.imap as imap
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
@@ -13,7 +13,9 @@ def main():
   load_dotenv()
   EMAIL = os.getenv("EMAIL")
   IMAP_SERVER = os.getenv("IMAP_SERVER")
-  PASSWORD = getpass.getpass(f"Password for {EMAIL} account:")
+  PASSWORD = os.getenv('PASSWORD')
+  if PASSWORD == None:
+    PASSWORD = getpass.getpass(f"Password for {EMAIL} account:")
 
   LOCAL_MBOX_FOLDER = os.getenv("LOCAL_MBOX_FOLDER")
   os.makedirs(LOCAL_MBOX_FOLDER, exist_ok=True)

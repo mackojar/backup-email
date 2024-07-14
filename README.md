@@ -28,7 +28,7 @@ LOCAL_MBOX_FOLDER = "<local folder name to store all emails/mailboxes>"
 
 # Run your backup
 ```
-python backup-email.py
+python backup_email.py
 ```
 Script will ask for the password for your email account.
 

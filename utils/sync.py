@@ -16,7 +16,7 @@ def _convertMsgId(imapMessageId: bytes): # b'Message-ID: <xxxxx@mail.gmail.com>\
   r = imapMessageId.find(b'>')
   return imapMessageId[l:r+1].decode()   # <xxxxx@mail.gmail.com>
 
-def _getMessageIDs(mail: imaplib.IMAP4_SSL, messageIds: list[bytes]) -> List[Tuple[bytes, str]]:
+def _getMessageIDs(mail: imaplib.IMAP4, messageIds: list[bytes]) -> List[Tuple[bytes, str]]:
   logging.info("Retrieve IMAP message IDs...")
   criteria = messageIds[0] + b':' + messageIds[-1]
   status, messages = mail.fetch(criteria, '(BODY[HEADER.FIELDS (MESSAGE-ID)])')
@@ -34,7 +34,7 @@ def _createMsgsInfo(mbox: mailbox.mbox) -> dict[str, MailSyncInfo]:
     msgIdMap[email.get('Message-Id')] = MailSyncInfo(id, False)
   return msgIdMap
 
-def _addMissingIMAPEmails(mail: imaplib.IMAP4_SSL, imapIds: list[bytes], mbox: mailbox.mbox, mboxMsgsInfo: dict[str, MailSyncInfo]):
+def _addMissingIMAPEmails(mail: imaplib.IMAP4, imapIds: list[bytes], mbox: mailbox.mbox, mboxMsgsInfo: dict[str, MailSyncInfo]):
   if len(imapIds) == 0:
     return
   logging.info("Retrieve missing IMAP emails...")
@@ -61,14 +61,14 @@ def _removeUnwantedMBoxEmails(mbox: mailbox.mbox, mboxMsgsInfo: dict[str, MailSy
       logging.info(f"Remove MBOX email {mailSyncInfo.mboxId}")
       mbox.remove(mailSyncInfo.mboxId)
 
-def _getIMAPIds(mail: imaplib.IMAP4_SSL) -> list[bytes]:
+def _getIMAPIds(mail: imaplib.IMAP4) -> list[bytes]:
   status, messages = mail.search(None, "ALL")
   checkResponse(status, "retrieve mail IDs")
   imapMessageIds = messages[0].split()
   logging.info(f"Found {len(imapMessageIds)} IMAP messages")
   return imapMessageIds
 
-def syncMailbox(mail: imaplib.IMAP4_SSL, mboxFileName: str):
+def syncMailbox(mail: imaplib.IMAP4, mboxFileName: str):
   imapIds = _getIMAPIds(mail)
   mbox = mailbox.mbox(mboxFileName)
   mboxMsgsInfo = _createMsgsInfo(mbox)
