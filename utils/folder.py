@@ -6,11 +6,11 @@ from .config import Config
 from .sync import syncMailbox
 from .imap import checkResponse
 
-_LOCAL_MBOX_FOLDER = os.getenv("LOCAL_MBOX_FOLDER")
 
 def _setFileFoldersNames(folderInfo: IMAPFolderInfo):
+  LOCAL_MBOX_FOLDER = os.getenv("LOCAL_MBOX_FOLDER")
   splitNames = folderInfo.name.split(folderInfo.delimiter)
-  mboxFolderName = os.path.join(_LOCAL_MBOX_FOLDER, *splitNames[0:-1])
+  mboxFolderName = os.path.join(LOCAL_MBOX_FOLDER, *splitNames[0:-1])
   mboxFileName = f"{splitNames[-1]}.mbox"
   cfgFileName = f"{splitNames[-1]}.config"
   folderInfo.setFileNames(mboxFolderName, mboxFileName, cfgFileName)
